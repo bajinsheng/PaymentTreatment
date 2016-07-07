@@ -19,6 +19,6 @@ public class RaceConfig implements Serializable {
     public static String MqTaobaoTradeTopic = "MiddlewareRaceTestData_TBOrder";
     public static String TairConfigServer = "10.101.72.127:5198";
     //public static String TairSalveConfigServer = "xxx";
-    public static String TairGroup = "group_tianchi";
+    public static String TairGroup = "group_tianchi";//test
     public static Integer TairNamespace = 13202;
 }
