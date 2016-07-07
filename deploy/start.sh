@@ -1,3 +1,3 @@
 #!/bin/bash
 
-jstorm jar preliminary.demo-1.0-SNAPSHOT.jar com.alibaba.middleware.race.jstorm.RaceTopology
+jstorm jar ababa-1.0-SNAPSHOT.jar com.alibaba.middleware.race.jstorm.RaceTopology
