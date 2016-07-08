@@ -7,7 +7,7 @@ public class RaceConfig implements Serializable {
     //这些是写tair key的前缀
     public static String prex_tmall = "platformTmall_41430ybcix_";
     public static String prex_taobao = "platformTaobao_41430ybcix_";
-    public static String prex_ratio = "ratio_41430ybcix_";
+    public static String prex_ratio = "ratio_41430ybcix_"; 
 
 
     //这些jstorm/rocketMq/tair 的集群配置信息，这些配置信息在正式提交代码前会被公布

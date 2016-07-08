@@ -28,7 +28,7 @@ public class RaceTopology {
     public static void main(String[] args) throws Exception {
 
         Config conf = new Config();
-        int spout_Parallelism_hint = 2;
+        int spout_Parallelism_hint = 1;
         int time_Parallelism_hint = 2;
         int buffer_Parallelism_hint = 2;
         int count_Parallelism_hint = 4;

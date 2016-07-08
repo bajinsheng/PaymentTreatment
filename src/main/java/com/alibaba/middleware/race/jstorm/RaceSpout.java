@@ -33,7 +33,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 	private static final long serialVersionUID = 8476906628618859716L;
 	private static final Logger LOG = Logger.getLogger(RaceSpout.class);
 	private HashMap<Long, String> platformID = null;
-
+	private int i = 0;
 	protected SpoutOutputCollector collector;
 	protected String id;
 	protected transient DefaultMQPushConsumer consumer;
@@ -57,7 +57,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 		try {
 			consumer = new DefaultMQPushConsumer();
 			consumer.setConsumerGroup(RaceConfig.MetaConsumerGroup);
-			consumer.setInstanceName(RaceConfig.MetaConsumerGroup + "@" + System.currentTimeMillis());
+			consumer.setInstanceName(RaceConfig.MetaConsumerGroup + "@" + i++);
 			consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 	        //consumer.setNamesrvAddr(RaceConfig.RocketMQAddress);
 	        consumer.subscribe(RaceConfig.MqPayTopic, "*");
@@ -67,7 +67,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 	        consumer.start();
 		} catch (Exception e) {
 			LOG.error("Failed to create RocketMQ Consumer ", e);
-			throw new RuntimeException("Failed to create Consumer" + id, e);
+			throw new RuntimeException("Failed to create Consumer " + i, e);
 		}
 
 		if (consumer == null) {
