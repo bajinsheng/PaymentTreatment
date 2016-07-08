@@ -11,9 +11,9 @@ public class RaceConfig implements Serializable {
 
 
     //这些jstorm/rocketMq/tair 的集群配置信息，这些配置信息在正式提交代码前会被公布
-    //public static String RocketMQAddress = "127.0.0.1:9876";
+    //public static String RocketMQAddress = "192.168.1.101:9876";
     public static String JstormTopologyName = "41430ybcix";
-    public static String MetaConsumerGroup = "41430ybcix";
+    //public static String MetaConsumerGroup = "41430ybcix";
     public static String MqPayTopic = "MiddlewareRaceTestData_Pay";
     public static String MqTmallTradeTopic = "MiddlewareRaceTestData_TMOrder";
     public static String MqTaobaoTradeTopic = "MiddlewareRaceTestData_TBOrder";
