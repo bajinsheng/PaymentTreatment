@@ -32,9 +32,9 @@ public class RaceTopology {
 
         Config conf = new Config();
         int spout_Parallelism_hint = 1;
-        int time_Parallelism_hint = 2;
-        int buffer_Parallelism_hint = 2;
-        int count_Parallelism_hint = 4;
+        int time_Parallelism_hint = 1;
+        int buffer_Parallelism_hint = 1;
+        int count_Parallelism_hint = 1;
         int ratio_Parallelism_hint = 1;
         //LocalCluster cluster = new LocalCluster();
         TopologyBuilder builder = new TopologyBuilder();

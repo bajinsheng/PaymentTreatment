@@ -50,9 +50,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 		this.payQueue = new LinkedBlockingDeque<PaymentMessage>();
 		this.platformID = new HashMap<Long, String>();
 		
-		StringBuilder sb = new StringBuilder();
-		sb.append("Begin to init MetaSpout:").append(id);
-		LOG.info( sb.toString());		
+	
 
 		try {
 			consumer = new DefaultMQPushConsumer();
@@ -66,8 +64,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 	        consumer.registerMessageListener(this);
 	        consumer.start();
 		} catch (Exception e) {
-			LOG.error("Failed to create RocketMQ Consumer ", e);
-			throw new RuntimeException("Failed to create Consumer " + i, e);
+			throw new RuntimeException("Failed to create Consumer :" + i++, e);
 		}
 
 		if (consumer == null) {
