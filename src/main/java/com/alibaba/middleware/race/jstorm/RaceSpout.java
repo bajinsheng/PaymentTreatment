@@ -56,7 +56,7 @@ public class RaceSpout implements IRichSpout, IAckValueSpout, IFailValueSpout,
 
 		try {
 			consumer = new DefaultMQPushConsumer();
-			//consumer.setConsumerGroup(RaceConfig.MetaConsumerGroup);
+			consumer.setConsumerGroup(RaceConfig.MetaConsumerGroup);
 			//consumer.setInstanceName(RaceConfig.MetaConsumerGroup + "@" + i++);
 			consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 	        //consumer.setNamesrvAddr(RaceConfig.RocketMQAddress);
