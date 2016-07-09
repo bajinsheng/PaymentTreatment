@@ -1,15 +1,12 @@
 package com.alibaba.middleware.race.jstorm;
 
 import backtype.storm.Config;
-import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
 import com.alibaba.middleware.race.RaceConfig;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -25,7 +22,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RaceTopology {
 
-    private static Logger LOG = LoggerFactory.getLogger(RaceTopology.class);
 
 
     public static void main(String[] args) throws Exception {
@@ -37,21 +33,18 @@ public class RaceTopology {
         int buffer_Parallelism_hint = 2;
         int count_Parallelism_hint = 4;
         int ratio_Parallelism_hint = 1;
-        //LocalCluster cluster = new LocalCluster();
         TopologyBuilder builder = new TopologyBuilder();
 
         builder.setSpout("spout", new RaceSpout(), spout_Parallelism_hint);
-        builder.setBolt("time", new RaceTimeBolt(), time_Parallelism_hint).shuffleGrouping("spout");
-        builder.setBolt("buffer", new RaceBufferBolt(), buffer_Parallelism_hint).shuffleGrouping("time");
+        builder.setBolt("timestamp", new RaceTimeBolt(), time_Parallelism_hint).shuffleGrouping("spout");
+        builder.setBolt("buffer", new RaceBufferBolt(), buffer_Parallelism_hint).shuffleGrouping("timestamp");
         builder.setBolt("count", new RaceCountBolt(), count_Parallelism_hint).fieldsGrouping("buffer", new Fields("time"));
-        builder.setBolt("ratio", new RaceRatioBolt(), ratio_Parallelism_hint).allGrouping("time");
+        builder.setBolt("ratio", new RaceRatioBolt(), ratio_Parallelism_hint).allGrouping("timestamp");
         String topologyName = RaceConfig.JstormTopologyName;
 
         try {
             StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
-            //cluster.submitTopology(topologyName, conf, builder.createTopology());
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

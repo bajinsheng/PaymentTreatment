@@ -19,8 +19,6 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 
 public class RaceRatioBolt extends BaseRichBolt {
-	private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(RaceRatioBolt.class);
     private OutputCollector collector;
     private HashMap<Long, Double> pcResult = null;
     private HashMap<Long, Double> mobileResult = null;     
@@ -31,12 +29,16 @@ public class RaceRatioBolt extends BaseRichBolt {
         this.collector = collector;
         this.pcResult = new HashMap<Long, Double>();
         this.mobileResult = new HashMap<Long, Double>();
-        this.confServers = new ArrayList<String>();
-        this.tairManager = new DefaultTairManager();
-    	this.confServers.add(RaceConfig.TairConfigServer);
-    	this.tairManager.setConfigServerList(confServers);
-    	this.tairManager.setGroupName(RaceConfig.TairGroup);
-    	this.tairManager.init();
+        try {
+	        this.confServers = new ArrayList<String>();
+	        this.tairManager = new DefaultTairManager();
+	    	this.confServers.add(RaceConfig.TairConfigServer);
+	    	this.tairManager.setConfigServerList(confServers);
+	    	this.tairManager.setGroupName(RaceConfig.TairGroup);
+	    	this.tairManager.init();     	
+        } catch (Exception e) {
+        	throw new RuntimeException("Failed to initial Tair in Ratio Bolt", e);
+        }
     }
     @Override
     public void execute(Tuple tuple) {
@@ -49,34 +51,47 @@ public class RaceRatioBolt extends BaseRichBolt {
 	    	if (pcResult.containsKey(time)) {
 	    		Long curIterTime = time;
 	    		pcResult.put(curIterTime, pcResult.get(curIterTime) + money);
-	    		tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(time), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
 	    		curIterTime++;
 	    		while (pcResult.containsKey(curIterTime)) {
 	    			pcResult.put(curIterTime, pcResult.get(curIterTime) + money);
-		    		tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(time), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
 	    		}
 	    	}else {
-	    		pcResult.put(time, money); 
-	    		if (mobileResult.containsKey(time))
-	    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(time), mobileResult.get(time) / pcResult.get(time));	
+	    		Long curIterTime = time;
+	    		pcResult.put(curIterTime, money);
+    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    		curIterTime++;
+	    		while (pcResult.containsKey(curIterTime)) {
+	    			pcResult.put(curIterTime, pcResult.get(curIterTime) + money);
+	    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    		}
 	    	}  		
     	} else if (platformPaySource == 1) {
 	    	if (mobileResult.containsKey(time)) {
 	    		Long curIterTime = time;
 	    		mobileResult.put(curIterTime, mobileResult.get(curIterTime) + money);
-	    		tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(time), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    		if (pcResult.containsKey(time))
+	    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
 	    		curIterTime++;
 	    		while (mobileResult.containsKey(curIterTime)) {
 	    			mobileResult.put(curIterTime, mobileResult.get(curIterTime) + money);
-		    		tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(time), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+		    		if (pcResult.containsKey(time))
+		    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
 	    		}
 	    	}else {
-	    		mobileResult.put(time, money); 	
+	    		Long curIterTime = time;
+	    		mobileResult.put(curIterTime, money);
 	    		if (pcResult.containsKey(time))
-	    			tairManager.put(RaceConfig.TairNamespace, "ratio_" + Long.toString(time), mobileResult.get(time) / pcResult.get(time));
+	    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    		curIterTime++;
+	    		while (mobileResult.containsKey(curIterTime)) {
+	    			mobileResult.put(curIterTime, mobileResult.get(curIterTime) + money);
+		    		if (pcResult.containsKey(time))
+		    			tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_ratio + Long.toString(curIterTime), mobileResult.get(curIterTime) / pcResult.get(curIterTime));
+	    		}
 	    	}  		  		
     	}
-    	this.collector.ack(tuple);
     }
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {

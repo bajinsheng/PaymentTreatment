@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import backtype.storm.task.OutputCollector;
@@ -18,7 +15,6 @@ import backtype.storm.tuple.Tuple;
 
 public class RaceBufferBolt extends BaseRichBolt {
     private static final long serialVersionUID = 1L;
-    private static final Logger LOG = LoggerFactory.getLogger(RaceTimeBolt.class);
     private OutputCollector collector;
 
     public void prepare(Map config, TopologyContext context, OutputCollector collector) {
@@ -30,9 +26,8 @@ public class RaceBufferBolt extends BaseRichBolt {
     	PaymentMessage payMessage = (PaymentMessage) tuple.getValue(0);
         List<Object> values = new ArrayList<Object>();
         values.add(payMessage);
-        values.add(payMessage.getClass());
-    	collector.emit(tuple, values);
-    	this.collector.ack(tuple);
+        values.add(payMessage.getCreateTime());
+    	collector.emit(values);
     }
     
     @Override

@@ -15,8 +15,9 @@ public class RaceConfig implements Serializable {
     public static String JstormTopologyName = "41430ybcix";
     public static String MetaConsumerGroup = "41430ybcix";
     public static int ConsumeMessageBatchMaxSize = 200;
-    public static int ConsumeThreadMin = 5;
-    public static int ConsumeThreadMax = 10;
+    public static int ConsumeThreadMin = 10;
+    public static int ConsumeThreadMax = 100;
+    public static int ConsumePullBatchSize = 128;
     public static String MqPayTopic = "MiddlewareRaceTestData_Pay";
     public static String MqTmallTradeTopic = "MiddlewareRaceTestData_TMOrder";
     public static String MqTaobaoTradeTopic = "MiddlewareRaceTestData_TBOrder";
