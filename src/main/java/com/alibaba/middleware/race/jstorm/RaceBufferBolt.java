@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 import backtype.storm.task.OutputCollector;
@@ -12,6 +13,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 
 public class RaceBufferBolt extends BaseRichBolt {
     private static final long serialVersionUID = 1L;
@@ -23,11 +25,9 @@ public class RaceBufferBolt extends BaseRichBolt {
     
     @Override
     public void execute(Tuple tuple) {
-    	PaymentMessage payMessage = (PaymentMessage) tuple.getValue(0);
-        List<Object> values = new ArrayList<Object>();
-        values.add(payMessage);
-        values.add(payMessage.getCreateTime());
-    	collector.emit(values);
+    	PaymentMessage payMessage = RaceUtils.readKryoObject(PaymentMessage.class, tuple.getBinaryByField("timestamp"));
+    	byte [] body = RaceUtils.writeKryoObject(payMessage);
+    	collector.emit(new Values(body,payMessage.getCreateTime()));
     }
     
     @Override

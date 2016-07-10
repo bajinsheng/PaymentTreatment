@@ -57,7 +57,7 @@ public class PaymentMessage implements Serializable{
             list[i] = msg;
         }
 
-        list[0].payAmount = rand.nextInt((int) (orderMessage.getTotalPrice() / 2));
+        list[0].payAmount = rand.nextInt((int) (orderMessage.getTotalPrice()));
         list[1].payAmount = orderMessage.getTotalPrice() - list[0].payAmount;
 
         return list;

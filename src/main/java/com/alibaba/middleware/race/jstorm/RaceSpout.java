@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.jstorm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Values;
 
 import com.alibaba.jstorm.client.spout.IAckValueSpout;
 import com.alibaba.jstorm.client.spout.IFailValueSpout;
@@ -29,9 +31,7 @@ import com.alibaba.middleware.race.model.OrderMessage;
 import com.alibaba.middleware.race.model.PaymentMessage;
 
 public class RaceSpout implements IRichSpout, MessageListenerConcurrently {
-	private static final long serialVersionUID = 8476906628618859716L;
-	private static final Logger LOG = Logger.getLogger(RaceSpout.class);
-	private HashMap<Long, String> platformID = null;
+	private Hashtable<Long, String> platformID = null;
 	protected SpoutOutputCollector collector;
 	protected String id;
 	protected transient DefaultMQPushConsumer consumer;
@@ -46,7 +46,7 @@ public class RaceSpout implements IRichSpout, MessageListenerConcurrently {
 			SpoutOutputCollector collector) {
 		this.collector = collector;
 		this.payQueue = new LinkedBlockingDeque<PaymentMessage>();
-		this.platformID = new HashMap<Long, String>();
+		this.platformID = new Hashtable<Long, String>();
 		try {
 			consumer = new DefaultMQPushConsumer();
 			consumer.setConsumerGroup(RaceConfig.MetaConsumerGroup);
@@ -98,17 +98,13 @@ public class RaceSpout implements IRichSpout, MessageListenerConcurrently {
 		} catch (InterruptedException e) {
 			return;
 		}
-		List<Object> tuples = new ArrayList<Object>();
 		if (platformID.get(payTuple.getOrderId()) == "taobao") {
 			payTuple.setPaySource((short) 4);
-			tuples.add(payTuple);
-			collector.emit(tuples);
-			tuples.clear();				
+			collector.emit(new Values(RaceUtils.writeKryoObject(payTuple)));
+			
 		}else if (platformID.get(payTuple.getOrderId()) == "tmall") {
 			payTuple.setPaySource((short) 5);
-			tuples.add(payTuple);
-			collector.emit(tuples);
-			tuples.clear();		
+			collector.emit(new Values(RaceUtils.writeKryoObject(payTuple)));
 		}else {
 			payQueue.offer(payTuple);
 		}

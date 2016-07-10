@@ -8,9 +8,10 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,11 @@ public class RaceTimeBolt extends BaseRichBolt {
     
     @Override
     public void execute(Tuple tuple) {
-    	PaymentMessage payMessage = (PaymentMessage) tuple.getValue(0);
+    	PaymentMessage payMessage = RaceUtils.readKryoObject(PaymentMessage.class, tuple.getBinaryByField("origin"));
     	long timestamp = payMessage.getCreateTime() / 1000 / 60 * 60;
     	payMessage.setCreateTime(timestamp);
-        List<Object> values = new ArrayList<Object>();
-        values.add(payMessage);
-    	collector.emit(values);
+    	byte [] body = RaceUtils.writeKryoObject(payMessage);
+    	collector.emit(new Values(body));
     }
     
     @Override

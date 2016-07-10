@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.jstorm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 import com.taobao.tair.Result;
 import com.taobao.tair.impl.DefaultTairManager;
@@ -23,15 +25,15 @@ import com.taobao.tair.impl.DefaultTairManager;
 public class RaceCountBolt extends BaseRichBolt {
 	private static final long serialVersionUID = 1L;
     private OutputCollector collector;
-    private HashMap<Long, Double> taobaoResult = null;
-    private HashMap<Long, Double> tmallResult = null;    
+    private Hashtable<Long, Double> taobaoResult = null;
+    private Hashtable<Long, Double> tmallResult = null;    
 	private List<String> confServers = null;
 	private DefaultTairManager tairManager = null;   
     
     public void prepare(Map config, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
-        this.taobaoResult = new HashMap<Long, Double>();
-        this.tmallResult = new HashMap<Long, Double>();
+        this.taobaoResult = new Hashtable<Long, Double>();
+        this.tmallResult = new Hashtable<Long, Double>();
         try {
 	        this.confServers = new ArrayList<String>();
 	        this.tairManager = new DefaultTairManager();
@@ -45,10 +47,10 @@ public class RaceCountBolt extends BaseRichBolt {
     }
     @Override
     public void execute(Tuple tuple) {
-    	PaymentMessage payMessage = (PaymentMessage) tuple.getValue(0);
+    	PaymentMessage payMessage = RaceUtils.readKryoObject(PaymentMessage.class, tuple.getBinaryByField("buffer"));
     	Long time = payMessage.getCreateTime();
     	Double money = payMessage.getPayAmount();
-    	short platformID = payMessage.getPayPlatform();
+    	short platformID = payMessage.getPaySource();
     	if (platformID == 4) {   		
 	    	if (taobaoResult.containsKey(time)) {
 	    		taobaoResult.put(time, taobaoResult.get(time) + money);
@@ -66,6 +68,7 @@ public class RaceCountBolt extends BaseRichBolt {
 	    		tairManager.put(RaceConfig.TairNamespace, RaceConfig.prex_tmall + Long.toString(time), money);	
 	    	}  		  		
     	}
+
     }
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {

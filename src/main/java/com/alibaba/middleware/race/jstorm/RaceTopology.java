@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.jstorm;
 
 import backtype.storm.Config;
+import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
@@ -41,7 +42,22 @@ public class RaceTopology {
         builder.setBolt("count", new RaceCountBolt(), count_Parallelism_hint).fieldsGrouping("buffer", new Fields("time"));
         builder.setBolt("ratio", new RaceRatioBolt(), ratio_Parallelism_hint).allGrouping("timestamp");
         String topologyName = RaceConfig.JstormTopologyName;
+        
+      //LocalCluster cluster = new LocalCluster();
 
+      //建议加上这行，使得每个bolt/spout的并发度都为1
+      //conf.put(Config.TOPOLOGY_MAX_TASK_PARALLELISM, 1);
+
+      //提交拓扑
+      //cluster.submitTopology(topologyName, conf, builder.createTopology());
+
+      //等待1分钟， 1分钟后会停止拓扑和集群， 视调试情况可增大该数值
+      //Thread.sleep(60000);        
+
+      //结束拓扑
+      //cluster.killTopology(topologyName);
+
+      //cluster.shutdown();
         try {
             StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
         } catch (Exception e) {

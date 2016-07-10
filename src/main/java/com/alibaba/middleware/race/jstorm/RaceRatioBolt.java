@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.jstorm;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.middleware.race.RaceConfig;
+import com.alibaba.middleware.race.RaceUtils;
 import com.alibaba.middleware.race.model.PaymentMessage;
 import com.taobao.tair.impl.DefaultTairManager;
 
@@ -20,15 +22,15 @@ import backtype.storm.tuple.Tuple;
 
 public class RaceRatioBolt extends BaseRichBolt {
     private OutputCollector collector;
-    private HashMap<Long, Double> pcResult = null;
-    private HashMap<Long, Double> mobileResult = null;     
+    private Hashtable<Long, Double> pcResult = null;
+    private Hashtable<Long, Double> mobileResult = null;     
 	private List<String> confServers = null;
 	private DefaultTairManager tairManager = null;   
     
     public void prepare(Map config, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
-        this.pcResult = new HashMap<Long, Double>();
-        this.mobileResult = new HashMap<Long, Double>();
+        this.pcResult = new Hashtable<Long, Double>();
+        this.mobileResult = new Hashtable<Long, Double>();
         try {
 	        this.confServers = new ArrayList<String>();
 	        this.tairManager = new DefaultTairManager();
@@ -42,10 +44,10 @@ public class RaceRatioBolt extends BaseRichBolt {
     }
     @Override
     public void execute(Tuple tuple) {
-    	PaymentMessage payMessage = (PaymentMessage) tuple.getValue(0);
+    	PaymentMessage payMessage = RaceUtils.readKryoObject(PaymentMessage.class, tuple.getBinaryByField("timestamp"));
     	Long time = payMessage.getCreateTime();
     	Double money = payMessage.getPayAmount();
-    	short platformPaySource = payMessage.getPaySource();   	
+    	short platformPaySource = payMessage.getPayPlatform();   	
     	  	
     	if (platformPaySource == 0) {
 	    	if (pcResult.containsKey(time)) {
