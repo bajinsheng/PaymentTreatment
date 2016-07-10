@@ -16,7 +16,6 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
 public class RaceBufferBolt extends BaseRichBolt {
-    private static final long serialVersionUID = 1L;
     private OutputCollector collector;
 
     public void prepare(Map config, TopologyContext context, OutputCollector collector) {

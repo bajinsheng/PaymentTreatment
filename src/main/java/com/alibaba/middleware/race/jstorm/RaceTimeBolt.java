@@ -27,8 +27,7 @@ public class RaceTimeBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
     	PaymentMessage payMessage = RaceUtils.readKryoObject(PaymentMessage.class, tuple.getBinaryByField("origin"));
-    	long timestamp = payMessage.getCreateTime() / 1000 / 60 * 60;
-    	payMessage.setCreateTime(timestamp);
+    	payMessage.setCreateTime((payMessage.getCreateTime() / 1000 / 60) * 60);
     	byte [] body = RaceUtils.writeKryoObject(payMessage);
     	collector.emit(new Values(body));
     }

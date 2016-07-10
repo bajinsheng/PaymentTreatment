@@ -107,9 +107,7 @@ public class RaceSpout implements IRichSpout, MessageListenerConcurrently {
 			collector.emit(new Values(RaceUtils.writeKryoObject(payTuple)));
 		}else {
 			payQueue.offer(payTuple);
-		}
-		
-		
+		}		
 	}
 
 	@Override
