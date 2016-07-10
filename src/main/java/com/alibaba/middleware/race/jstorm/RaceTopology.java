@@ -28,7 +28,7 @@ public class RaceTopology {
     public static void main(String[] args) throws Exception {
 
         Config conf = new Config();
-        conf.setNumWorkers(3);
+        //conf.setNumWorkers(3);
         int spout_Parallelism_hint = 1;
         int time_Parallelism_hint = 2;
         int buffer_Parallelism_hint = 2;
@@ -36,30 +36,30 @@ public class RaceTopology {
         int ratio_Parallelism_hint = 1;
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("spout", new RaceSpout(), spout_Parallelism_hint);
+        builder.setSpout("spout", new TestSpout(), spout_Parallelism_hint);
         builder.setBolt("timestamp", new RaceTimeBolt(), time_Parallelism_hint).shuffleGrouping("spout");
         builder.setBolt("buffer", new RaceBufferBolt(), buffer_Parallelism_hint).shuffleGrouping("timestamp");
         builder.setBolt("count", new RaceCountBolt(), count_Parallelism_hint).fieldsGrouping("buffer", new Fields("time"));
         builder.setBolt("ratio", new RaceRatioBolt(), ratio_Parallelism_hint).allGrouping("timestamp");
         String topologyName = RaceConfig.JstormTopologyName;
         
-      //LocalCluster cluster = new LocalCluster();
+      LocalCluster cluster = new LocalCluster();
 
       //建议加上这行，使得每个bolt/spout的并发度都为1
       //conf.put(Config.TOPOLOGY_MAX_TASK_PARALLELISM, 1);
 
       //提交拓扑
-      //cluster.submitTopology(topologyName, conf, builder.createTopology());
+      cluster.submitTopology(topologyName, conf, builder.createTopology());
 
       //等待1分钟， 1分钟后会停止拓扑和集群， 视调试情况可增大该数值
-      //Thread.sleep(60000);        
+      Thread.sleep(60000);        
 
       //结束拓扑
-      //cluster.killTopology(topologyName);
+      cluster.killTopology(topologyName);
 
-      //cluster.shutdown();
+      cluster.shutdown();
         try {
-            StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
+            //StormSubmitter.submitTopology(topologyName, conf, builder.createTopology());
         } catch (Exception e) {
             e.printStackTrace();
         }
